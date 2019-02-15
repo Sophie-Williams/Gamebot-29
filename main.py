@@ -34,7 +34,7 @@ class goBot(commands.Bot):
 
 
 loop = asyncio.get_event_loop()
-with open(f'{os.getcwd()}\\dir\\config.json') as f:
+with open(f'{os.getcwd()}/dir/config.json') as f:
     data = json.load(f)
     gobot = goBot(data["prefix"], data["server"])
     loop.run_until_complete(gobot.run(data["botkey"]))

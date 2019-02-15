@@ -1,8 +1,6 @@
 from discord.ext import commands
 import discord
 import aiohttp
-from lxml import html
-import requests
 import sqlite3
 import os
 import re
@@ -11,10 +9,12 @@ import io
 import traceback
 import textwrap
 
-db = sqlite3.connect(f"{os.getcwd()}\\db\\go.db")
-member_db = sqlite3.connect(f"{os.getcwd()}\\db\\member-test.db")
+db = sqlite3.connect(f"{os.getcwd()}/db/go.db")
+member_db = sqlite3.connect(f"{os.getcwd()}/db/member-test.db")
+time_db = sqlite3.connect(f"{os.getcwd()}/db/timezones.db")
 cur = db.cursor()
 member_cur = member_db.cursor()
+time_cur = time_db.cursor()
 
 
 def clean(to_clean):
@@ -133,14 +133,14 @@ class src:
             latency = latency[:-13] + "00000000000000"
         await ctx.send(content=f'\uD83C\uDFD3Pong, **{latency[:-13]}ms**')
 
-    @commands.command()
-    async def web_scraping_kill_me_please(self, ctx):
-        page = requests.get("https://www.oculus.com/experiences/go/section/1431986220442261#/?_k=qaq5qw")
-        tree = html.fromstring(page.content)
+    #@commands.command()
+    #async def web_scraping_kill_me_please(self, ctx):
+        #page = requests.get("https://www.oculus.com/experiences/go/section/1431986220442261#/?_k=qaq5qw")
+        #tree = html.fromstring(page.content)
         # release1 = tree.xpath('//*[@id="mount"]/div/div[2]/div/div/div[2]/div[1]/div/div/div[1]/text()')
-        for i in tree.body:
-            for a in i.values:
-                print(a)
+        #for i in tree.body:
+            #for a in i.values:
+                #print(a)
         # print(tree)
 
     @commands.command()
@@ -544,6 +544,97 @@ class src:
             embed = discord.Embed(title="Player Counter", description="Thanks! I'll save this information for later!",
                                   color=0xf20006)
             await ctx.send(embed=embed)
+
+    @commands.command()
+    async def time_convert(self, ctx, time: str, zone1, zone2):
+        original_time = time
+        time = time.replace(":", ".")
+        time = float(time)
+        if time >= 24 or time < 0:
+            return await ctx.send("Please enter a valid time!")
+
+        zone1 = zone1.lower()
+        zone2 = zone2.lower()
+
+        time_cur.execute(f"SELECT time FROM {zone1}")
+        change = time_cur.fetchall()
+        change = clean(change)
+        change = int(change)
+
+        if time - change < 0 and change != 0:
+            loop1 = False
+            loop2 = False
+            remove = 0
+            if remove > change:
+                loop1 = True
+            else:
+                loop2 = True
+
+            while loop1:
+                if time - -1 < 0:
+                    time = time + 24
+                time = time - -1
+                remove -= 1
+                if remove == change:
+                    loop1 = False
+
+            while loop2:
+                if time - 1 < 0:
+                    time = time + 24
+                time = time - 1
+                remove += 1
+                if remove == change:
+                    loop2 = False
+        else:
+            time = time - change
+
+        time_cur.execute(f"SELECT time FROM {zone2}")
+        change = time_cur.fetchall()
+        change = clean(change)
+        change = int(change)
+
+        if time + change < 0 and change != 0:
+            loop1 = False
+            loop2 = False
+            remove = 0
+            if remove > change:
+                loop1 = True
+            else:
+                loop2 = True
+
+            while loop1:
+                if time + -1 < 0:
+                    time = time + 24
+                time = time + -1
+                remove -= 1
+                if remove == change:
+                    loop1 = False
+
+            while loop2:
+                if time - 1 < 0:
+                    time = time + 24
+                time = time + 1
+                remove += 1
+                if remove == change:
+                    loop2 = False
+        else:
+            time = time + change
+
+        if time >= 24:
+            time = time - 24
+
+        time_str = "%.2f" % time
+        time = time_str
+        time = time.replace(".", ":")
+        if time.endswith(":0"):
+            time = time + "0"
+
+        zone1 = zone1.upper()
+        zone2 = zone2.upper()
+
+        embed = discord.Embed(title="Time Conversion", description=f"{original_time} {zone1} is {time} {zone2}",
+                              color=0xf20006)
+        await ctx.send(embed=embed)
 
 
 def setup(bot):
