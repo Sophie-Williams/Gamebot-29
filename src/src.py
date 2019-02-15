@@ -418,7 +418,8 @@ class src:
                                                                   "Keeps track of how many people play certain games."
                                                                   "\n**Gamebot, time_convert (time) (timezone 1) "
                                                                   "(timezone 2)**: Convert a time from timezone 1 to "
-                                                                  "timezone 2.\n**Gamebot, tell me about (game name)**"
+                                                                  "timezone 2. Time has to be 24 hour (e.g. 17:00 "
+                                                                  "= 5:00 PM)\n**Gamebot, tell me about (game name)**"
                                                                   ": Get all information about a game.\n",
                               color=0xf20006)
         await ctx.send(embed=embed)
