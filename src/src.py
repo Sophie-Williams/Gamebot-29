@@ -44,6 +44,11 @@ class src:
     def __init__(self, bot):
         self.bot = bot
 
+    async def on_ready(self):
+        game = discord.Activity(type=discord.ActivityType.watching,
+                                name=f"Gamebot, help")
+        await self.bot.change_presence(status=discord.Status.online, activity=game)
+
     async def on_error(self, ctx, error):
         await ctx.send("An error has occurred!\n" + str(error))
 
