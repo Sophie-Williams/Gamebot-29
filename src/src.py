@@ -416,8 +416,11 @@ class src:
                                                                   "is the website for (game name)?**: Shows the website "
                                                                   "for a game.\n**Gamebot, I don't/play (game name)**: "
                                                                   "Keeps track of how many people play certain games."
-                                                                  "\n**Gamebot, tell me about (game name)**: Get all "
-                                                                  "information about a game.\n", color=0xf20006)
+                                                                  "\n**Gamebot, time_convert (time) (timezone 1) "
+                                                                  "(timezone 2)**: Convert a time from timezone 1 to "
+                                                                  "timezone 2.\n**Gamebot, tell me about (game name)**"
+                                                                  ": Get all information about a game.\n",
+                              color=0xf20006)
         await ctx.send(embed=embed)
 
     @commands.command()
