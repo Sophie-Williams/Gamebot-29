@@ -10,7 +10,7 @@ import traceback
 import textwrap
 
 db = sqlite3.connect(f"{os.getcwd()}/db/go.db")
-member_db = sqlite3.connect(f"{os.getcwd()}/db/member-test.db")
+member_db = sqlite3.connect(f"{os.getcwd()}/db/member.db")
 time_db = sqlite3.connect(f"{os.getcwd()}/db/timezones.db")
 cur = db.cursor()
 member_cur = member_db.cursor()
@@ -25,6 +25,7 @@ def clean(to_clean):
     to_clean = to_clean.replace(")", "")
     to_clean = to_clean.replace("'", "")
     to_clean = to_clean.replace(",", "")
+    to_clean = to_clean.replace('"', '')
 
     return to_clean
 
@@ -36,6 +37,7 @@ def clean_comma(to_clean):
     to_clean = to_clean.replace("(", "")
     to_clean = to_clean.replace(")", "")
     to_clean = to_clean.replace("'", "")
+    to_clean = to_clean.replace('"', '')
 
     return to_clean
 
@@ -209,15 +211,10 @@ class src:
             game_list = []
 
             for i in games:
-                game_list.append(i)
+                i = clean(str(i))
+                game_list.append(i.capitalize())
 
-            game_list = str(game_list)
-            game_list = game_list.replace("[", "")
-            game_list = game_list.replace("]", "")
-            game_list = game_list.replace("(", "")
-            game_list = game_list.replace(")", "")
-            game_list = game_list.replace("'", "")
-            game_list = game_list.replace(",,", ",")
+            game_list = clean_comma(str(game_list))
             game_list = game_list.replace("_", " ")
 
             embed = discord.Embed(title="Game List", description=f"Here is a list of all games "
