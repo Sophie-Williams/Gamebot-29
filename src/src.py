@@ -71,16 +71,6 @@ class src:
             await ctx.send("An unknown error has occurred!")
             await ctx.send(f"Error: `{error}`")
 
-    @commands.command(hidden=True)
-    async def reload(self, ctx, plugin: str):
-        if ctx.message.author.id in self.bot.owner:
-            self.bot.unload_extension(f"src.{plugin}")
-            self.bot.load_extension(f"src.{plugin}")
-            embed = discord.Embed(title="Reload", description="Reloaded `" + plugin + "`!", color=0xf20006)
-            await ctx.send(embed=embed)
-        else:
-            await ctx.send("Only the owner of this bot can use this command ;(")
-
     @commands.command(pass_context=True, hidden=True, name='eval')
     async def _eval(self, ctx, *, body: str):
         """Evaluates a code"""
@@ -171,7 +161,7 @@ class src:
             game = game.replace("_", " ")
 
             embed = discord.Embed(title="Game", description=f"{game} was released on: {date}",
-                                                            color=0xf20006)
+                                                            color=discord.Colour.dark_purple())
             await ctx.send(embed=embed)
         else:
             return await ctx.message.add_reaction("❌")
@@ -218,7 +208,8 @@ class src:
             game_list = game_list.replace("_", " ")
 
             embed = discord.Embed(title="Game List", description=f"Here is a list of all games "
-                                                                 f"I have information on: {game_list}", color=0xf20006)
+                                                                 f"I have information on: {game_list}",
+                                  color=discord.Colour.blurple())
             await ctx.author.send(embed=embed)
 
         elif search:
@@ -231,7 +222,7 @@ class src:
 
             game = game.replace("_", " ")
             embed = discord.Embed(title="Game", description=f"{game}'s genre is: {genre}",
-                                  color=0xf20006)
+                                  color=discord.Colour.dark_purple())
             return await ctx.send(embed=embed)
 
         search = re.match(r"is the website for (.*)", text)
@@ -245,7 +236,7 @@ class src:
 
             game = game.replace("_", " ")
             embed = discord.Embed(title="Game", description=f"{game}'s site is: {site}",
-                                  color=0xf20006)
+                                  color=discord.Colour.dark_purple())
             return await ctx.send(embed=embed)
 
 
@@ -358,6 +349,14 @@ class src:
             game = search.group(1)
             game = game.replace(" ", "_")
 
+            if game == "yourself":
+                embed = discord.Embed(title="Gamebot", description=f"**Version**: {self.bot.version}\n"
+                                                                   f"**Author**: Node#0721\n"
+                                                                   f"**Github**: https://github.com/NodeTechGaming/"
+                                                                   f"Gamebot", color=discord.Colour.dark_red())
+                embed.set_thumbnail(url=self.bot.user.avatar_url)
+                return await ctx.send(embed=embed)
+
             cur.execute(f"SELECT released FROM {game}")
             date = cur.fetchall()
             date = clean(date)
@@ -400,7 +399,7 @@ class src:
                                                                          f"\n{date}\n\n__**Author**__\n{author}\n\n"
                                                                          f"__**Genre**__\n{genre}\n\n__**Website**__"
                                                                          f"\n{site}\n\n__**Known players in this server**__"
-                                                                         f"\n{count}", color=0xf20006)
+                                                                         f"\n{count}", color=discord.Colour.dark_green())
             if str(url) != "None":
                 embed = embed.set_image(url=str(url))
 
@@ -423,7 +422,7 @@ class src:
                                                                   "timezone 2. Time has to be 24 hour (e.g. 17:00 "
                                                                   "= 5:00 PM)\n**Gamebot, tell me about (game name)**"
                                                                   ": Get all information about a game.\n",
-                              color=0xf20006)
+                              color=discord.Colour.blurple())
         await ctx.send(embed=embed)
 
     @commands.command()
@@ -440,7 +439,7 @@ class src:
 
             game = game.replace("_", " ")
             embed = discord.Embed(title="Game", description=f"{game}'s developer is: {author}",
-                                  color=0xf20006)
+                                  color=discord.Colour.dark_purple())
             await ctx.send(embed=embed)
 
         search = re.match(r"developed (.*)", text)
@@ -454,7 +453,7 @@ class src:
 
             game = game.replace("_", " ")
             embed = discord.Embed(title="Game", description=f"{game}'s developer is: {author}",
-                                  color=0xf20006)
+                                  color=discord.Colour.dark_purple())
             await ctx.send(embed=embed)
 
         search = re.match(r"wrote (.*)", text)
@@ -468,7 +467,7 @@ class src:
 
             game = game.replace("_", " ")
             embed = discord.Embed(title="Game", description=f"{game}'s developer is: {author}",
-                                  color=0xf20006)
+                                  color=discord.Colour.dark_purple())
             await ctx.send(embed=embed)
 
     @commands.command()
@@ -511,7 +510,7 @@ class src:
             db.commit()
 
             embed = discord.Embed(title="Player Counter", description="Thanks! I'll save this information for later!",
-                                  color=0xf20006)
+                                  color=discord.Colour.teal())
             await ctx.send(embed=embed)
 
         search = re.match(r"dont play (.*)", text)
@@ -548,7 +547,7 @@ class src:
             db.commit()
 
             embed = discord.Embed(title="Player Counter", description="Thanks! I'll save this information for later!",
-                                  color=0xf20006)
+                                  color=discord.Colour.teal())
             await ctx.send(embed=embed)
 
     @commands.command()
@@ -639,7 +638,7 @@ class src:
         zone2 = zone2.upper()
 
         embed = discord.Embed(title="Time Conversion", description=f"{original_time} {zone1} is {time} {zone2}",
-                              color=0xf20006)
+                              color=discord.Colour.blue())
         await ctx.send(embed=embed)
 
 
