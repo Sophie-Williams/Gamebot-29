@@ -344,6 +344,7 @@ class src:
 
     @commands.command()
     async def tell(self, ctx, *, text):
+        text = text.replace(".", "")
         search = re.match(r"me about (.*)", text)
         if search:
             game = search.group(1)
