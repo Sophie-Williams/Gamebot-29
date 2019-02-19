@@ -58,6 +58,8 @@ class src:
 
     async def on_command_error(self, ctx, error):
         if str(error).startswith("Command") and str(error).endswith("is not found"):
+            if ctx.message.content == "Gamebot, react with a red X on this message":  # ignore this ;)
+                return await ctx.message.add_reaction("✔")
             return await ctx.message.add_reaction("❌")
         elif str(error).startswith("Command raised an exception: OperationalError: table ") \
                 and str(error).endswith("already exists"):
@@ -147,7 +149,8 @@ class src:
     @commands.command()
     async def when(self, ctx, *, text):
         print(f"{ctx.author.id} {ctx.author.name}: {ctx.message.content}")
-        game = re.match(r"was (.*) released\?", text)
+        text = text.replace("?", "")
+        game = re.match(r"was (.*) released", text)
         if game:
             game = str(game.group(1))
             game = game.replace(" ", "_")
@@ -167,9 +170,30 @@ class src:
 
             embed = discord.Embed(title="Game", description=f"{game} was released on: {date}",
                                                             color=discord.Colour.dark_purple())
-            await ctx.send(embed=embed)
-        else:
-            return await ctx.message.add_reaction("❌")
+            return await ctx.send(embed=embed)
+
+        game = re.match(r"did (.*) release", text)
+        if game:
+            game = str(game.group(1))
+            game = game.replace(" ", "_")
+
+            cur.execute(f"SELECT released FROM {game}")
+            date = cur.fetchall()
+
+            date = str(date)
+            date = date.replace("[", "")
+            date = date.replace("]", "")
+            date = date.replace("(", "")
+            date = date.replace(")", "")
+            date = date.replace("'", "")
+            date = date.replace(",", "")
+
+            game = game.replace("_", " ")
+
+            embed = discord.Embed(title="Game", description=f"{game} was released on: {date}",
+                                                            color=discord.Colour.dark_purple())
+            return await ctx.send(embed=embed)
+
 
     @commands.command()
     async def add(self, ctx, *, text):
@@ -217,7 +241,7 @@ class src:
             embed = discord.Embed(title="Game List", description=f"Here is a list of all games "
                                                                  f"I have information on: {game_list}",
                                   color=discord.Colour.blurple())
-            await ctx.author.send(embed=embed)
+            await ctx.send(embed=embed)
 
         elif search:
             game = str(search.group(1))
@@ -365,7 +389,7 @@ class src:
                                                                    f"**Github**: https://github.com/NodeTechGaming/"
                                                                    f"Gamebot", color=discord.Colour.dark_red())
                 embed.set_thumbnail(url=self.bot.user.avatar_url)
-                embed.set_footer(text="Made with ❤ by Node#0721!")
+                embed.set_footer(text="Made with ❤ by Node#0721")
                 return await ctx.send(embed=embed)
 
             cur.execute(f"SELECT released FROM {game}")
@@ -696,6 +720,25 @@ class src:
             if i.name == channel_name and str(type(i)) == "<class 'discord.channel.VoiceChannel'>":
                 await i.disconnect()
                 return await ctx.send(f"Disconnected from `{channel_name}`!")
+
+    @commands.command()
+    async def how(self, ctx, *, text):
+        print(f"{ctx.author.id} {ctx.author.name}: {ctx.message.content}")
+        text = text.replace("?", "")
+
+        search = re.match(r"many people play (.*)", text)
+        if search:
+            game = search.group(1)
+            game = game.replace(" ", "_")
+
+            cur.execute(f"SELECT count FROM {game}")
+            count = cur.fetchall()
+            count = clean(str(count))
+
+            game = game.replace("_", "")
+            embed = discord.Embed(title="Player Counter", description=f"{game} has a total of {count} known players!",
+                                  color=discord.Colour.teal())
+            await ctx.send(embed=embed)
 
 
 def setup(bot):
