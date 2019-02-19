@@ -8,6 +8,8 @@ from contextlib import redirect_stdout
 import io
 import traceback
 import textwrap
+import youtube_dl
+import requests
 
 db = sqlite3.connect(f"{os.getcwd()}/db/go.db")
 member_db = sqlite3.connect(f"{os.getcwd()}/db/member.db")
@@ -74,6 +76,7 @@ class src:
     @commands.command(pass_context=True, hidden=True, name='eval')
     async def _eval(self, ctx, *, body: str):
         """Evaluates a code"""
+        print(f"{ctx.author.id} {ctx.author.name}: {ctx.message.content}")
         if ctx.message.author.id in self.bot.owner:
             env = {
                 'bot': self.bot,
@@ -125,6 +128,7 @@ class src:
 
     @commands.command(hidden=True)
     async def ping(self, ctx):
+        print(f"{ctx.author.id} {ctx.author.name}: {ctx.message.content}")
         latency = str(self.bot.latency * 1000)
         if latency[:-13].endswith("."):
             latency = latency[:-13] + "00000000000000"
@@ -142,6 +146,7 @@ class src:
 
     @commands.command()
     async def when(self, ctx, *, text):
+        print(f"{ctx.author.id} {ctx.author.name}: {ctx.message.content}")
         game = re.match(r"was (.*) released\?", text)
         if game:
             game = str(game.group(1))
@@ -168,6 +173,7 @@ class src:
 
     @commands.command()
     async def add(self, ctx, *, text):
+        print(f"{ctx.author.id} {ctx.author.name}: {ctx.message.content}")
         if ctx.author.id not in self.bot.devs:
             return await ctx.send("Sorry! You aren't allowed to use this! Contact @Node#0721 to get "
                                   "yourself added as a dev!")
@@ -192,6 +198,7 @@ class src:
 
     @commands.command()
     async def what(self, ctx, *, text):
+        print(f"{ctx.author.id} {ctx.author.name}: {ctx.message.content}")
         text = text.replace("?", "")
         search = re.match(r"genre is (.*)", text)
         if str(text.lower()).startswith("games do you know"):
@@ -242,6 +249,7 @@ class src:
 
     @commands.command()
     async def edit(self, ctx, *, text):
+        print(f"{ctx.author.id} {ctx.author.name}: {ctx.message.content}")
         if ctx.author.id not in self.bot.devs:
             return await ctx.send("Sorry! You aren't allowed to use this! Contact @Node#0721 to get "
                                   "yourself added as a dev!")
@@ -344,6 +352,7 @@ class src:
 
     @commands.command()
     async def tell(self, ctx, *, text):
+        print(f"{ctx.author.id} {ctx.author.name}: {ctx.message.content}")
         text = text.replace(".", "")
         search = re.match(r"me about (.*)", text)
         if search:
@@ -356,6 +365,7 @@ class src:
                                                                    f"**Github**: https://github.com/NodeTechGaming/"
                                                                    f"Gamebot", color=discord.Colour.dark_red())
                 embed.set_thumbnail(url=self.bot.user.avatar_url)
+                embed.set_footer(text="Made with ❤ by Node#0721!")
                 return await ctx.send(embed=embed)
 
             cur.execute(f"SELECT released FROM {game}")
@@ -408,6 +418,7 @@ class src:
 
     @commands.command()
     async def help(self, ctx):
+        print(f"{ctx.author.id} {ctx.author.name}: {ctx.message.content}")
         embed = discord.Embed(title="__***Help***__", description="**Gamebot, what games do you know?**: Get a list of "
                                                                   "games the bot has information on.\n**Gamebot, when "
                                                                   "was (game name) released?**: Get the release "
@@ -421,13 +432,16 @@ class src:
                                                                   "\n**Gamebot, time_convert (time) (timezone 1) "
                                                                   "(timezone 2)**: Convert a time from timezone 1 to "
                                                                   "timezone 2. Time has to be 24 hour (e.g. 17:00 "
-                                                                  "= 5:00 PM)\n**Gamebot, tell me about (game name)**"
+                                                                  "= 5:00 PM)\n**Gamebot, tell me about yourself**: Get "
+                                                                  "information about the bot, including version and "
+                                                                  "Github link.\n**Gamebot, tell me about (game name)**"
                                                                   ": Get all information about a game.\n",
                               color=discord.Colour.blurple())
         await ctx.send(embed=embed)
 
     @commands.command()
     async def who(self, ctx, *, text):
+        print(f"{ctx.author.id} {ctx.author.name}: {ctx.message.content}")
         text = text.replace("?", "")
         search = re.match(r"made (.*)", text)
         if search:
@@ -473,6 +487,7 @@ class src:
 
     @commands.command()
     async def I(self, ctx, *, text):
+        print(f"{ctx.author.id} {ctx.author.name}: {ctx.message.content}")
         text = text.replace("?", "")
         text = text.replace("'", "")
         search = re.match(r"play (.*)", text)
@@ -553,6 +568,7 @@ class src:
 
     @commands.command()
     async def time_convert(self, ctx, time: str, zone1, zone2):
+        print(f"{ctx.author.id} {ctx.author.name}: {ctx.message.content}")
         original_time = time
         time = time.replace(":", ".")
         time = float(time)
@@ -641,6 +657,45 @@ class src:
         embed = discord.Embed(title="Time Conversion", description=f"{original_time} {zone1} is {time} {zone2}",
                               color=discord.Colour.blue())
         await ctx.send(embed=embed)
+
+    @commands.command()
+    async def music_test(self, ctx, *, url):
+        print(f"{ctx.author.id} {ctx.author.name}: {ctx.message.content}")
+        if ctx.author.id not in self.bot.owner:
+            return await ctx.send("Sorry! This is a test command only the bot owner can use!")
+
+        opts = {}
+        with youtube_dl.YoutubeDL(opts) as ydl:
+            song_info = ydl.extract_info(url, download=False)
+            audio_url = song_info['formats'][1]['url']
+
+            song = requests.get(audio_url, stream=True)
+            print(song.raw)
+
+            #with open(song.raw.readinto(), 'r') as f:
+                #ctx.voice_client.play(source=discord.FFmpegPCMAudio(f))
+
+    @commands.command()
+    async def connect(self, ctx, *, channel_name: str):
+        print(f"{ctx.author.id} {ctx.author.name}: {ctx.message.content}")
+        if ctx.author.id not in self.bot.owner:
+            return await ctx.send("Sorry! This is a test command only the bot owner can use!")
+
+        for i in ctx.guild.channels:
+            if i.name == channel_name and str(type(i)) == "<class 'discord.channel.VoiceChannel'>":
+                await i.connect()
+                return await ctx.send(f"Connected to `{channel_name}`!")
+
+    @commands.command()
+    async def disconnect(self, ctx, *, channel_name: str):
+        print(f"{ctx.author.id} {ctx.author.name}: {ctx.message.content}")
+        if ctx.author.id not in self.bot.owner:
+            return await ctx.send("Sorry! This is a test command only the bot owner can use!")
+
+        for i in ctx.guild.channels:
+            if i.name == channel_name and str(type(i)) == "<class 'discord.channel.VoiceChannel'>":
+                await i.disconnect()
+                return await ctx.send(f"Disconnected from `{channel_name}`!")
 
 
 def setup(bot):
