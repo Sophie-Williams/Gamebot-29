@@ -10,6 +10,7 @@ import traceback
 import textwrap
 import youtube_dl
 import requests
+import random
 
 db = sqlite3.connect(f"{os.getcwd()}/db/go.db")
 member_db = sqlite3.connect(f"{os.getcwd()}/db/member.db")
@@ -60,6 +61,10 @@ class src:
         if str(error).startswith("Command") and str(error).endswith("is not found"):
             if ctx.message.content == "Gamebot, react with a red X on this message":  # ignore this ;)
                 return await ctx.message.add_reaction("✔")
+
+            response = ["'Sorry, I didn't get that. Could you try it again, please?' - Siri", "Did you need something?",
+                    "I can't hear you!", "Could you say that louder for me?", "Did you say something?"]
+            await ctx.send(response[random.randint(0, 4)])
             return await ctx.message.add_reaction("❌")
         elif str(error).startswith("Command raised an exception: OperationalError: table ") \
                 and str(error).endswith("already exists"):
@@ -735,7 +740,7 @@ class src:
             count = cur.fetchall()
             count = clean(str(count))
 
-            game = game.replace("_", "")
+            game = game.replace("_", " ")
             embed = discord.Embed(title="Player Counter", description=f"{game} has a total of {count} known players!",
                                   color=discord.Colour.teal())
             await ctx.send(embed=embed)
